@@ -194,9 +194,12 @@ const std::map<Color, Eigen::Vector3d> estimatePosition(const std::vector<Observ
             //Convert quad_att to rotation mat
             Eigen::Matrix3d RBI = getRotationMat(2,databaseBlue[i].quad_att(1))*getRotationMat(3,databaseBlue[i].quad_att(0));
             Eigen::Matrix3d RCB = getRotationMat(2,-sensorParams.camera_angle);
+            
             Eigen::Matrix3d RCI = RCB*RBI;
+            
             //Obtain position of camera center
             Eigen::Vector3d rcI = Recef2enu(databaseBlue[i].quad_pos)*(databaseBlue[i].quad_pos - sensorParams.riG) + RBI.transpose()*sensorParams.rcB;
+            std::cout<<"rcI\n"<<rcI<<"\nQP"<<databaseBlue[i].quad_pos<<std::endl;
             //Build up T matrix
             Eigen::Matrix<double,4,4> T = Eigen::MatrixXd::Zero(4,4);
             T.block<3,3>(0,0) = RCI;
@@ -240,16 +243,16 @@ const Eigen::Matrix3d Recef2enu(const Eigen::Vector3d& r){
     double b = 6356752;
     double e = sqrt(f*(2-f));
     double ep = sqrt(e*e/(1-e*e));
-    double rho = r.norm();
+    double rho = sqrt(r(0)*r(0)+r(1)*r(1));
     double theta = atan2(a*r(2),rho*b);
     double lon = atan2(r(1),r(0));
     double lat = atan2(r(2)+ep*ep*b*pow(sin(theta),3),rho-e*e*a*pow(cos(theta),3));
     double N = a/sqrt(1-e*e*sin(lat)*sin(lat));
     double alt = rho/cos(lat)-N;
-    double x = rho*sin(90-lat)*cos(lon);
-    double y = rho*sin(90-lat)*sin(lon);
-    double z = rho*cos(90-lat);
-    Eigen::Vector3d v_vert; v_vert << x,y,z;
+    double x = rho*sin(3.141592654/2-lat)*cos(lon);
+    double y = rho*sin(3.141592654/2-lat)*sin(lon);
+    double z = rho*cos(3.141592654/2-lat);
+    Eigen::Vector3d v_vert; v_vert << x,y,z;v_vert.normalize();
     Eigen::Vector3d v_east; v_east << -y,x,0;v_east.normalize();
     Eigen::Vector3d v_north = v_vert.cross(v_east); v_north.normalize();
 

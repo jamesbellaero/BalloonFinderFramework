@@ -61,6 +61,7 @@ int main() {
         std::vector<BalloonInfo> balloon_info_vec = processImage(input_img);
 
         // Draw circle around located balloons
+        bool found = false;
         for(BalloonInfo& info: balloon_info_vec) {
             // // Draw outer circle
             // cv::circle(input_img, 
@@ -76,6 +77,9 @@ int main() {
             //     cv::Scalar(0, 0, 0),
             //     5);
             // Estimate the position of the balloons
+            found = true;
+        }
+        if(found){
             const RawMeasurement meas = measurement_map[image_name];
             Observation obs{
                 balloon_info_vec, 
