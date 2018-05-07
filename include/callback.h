@@ -50,3 +50,5 @@ typedef struct {
 
 const std::vector<BalloonInfo> processImage(const cv::Mat& img);
 const std::map<Color, Eigen::Vector3d> estimatePosition(const std::vector<Observation>& database);
+const Eigen::Matrix3d getRotationMat(const double axis,const double angle);
+const Eigen::Matrix3d Recef2enu(const Eigen::Vector3d& r);

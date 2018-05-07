@@ -62,41 +62,43 @@ int main() {
 
         // Draw circle around located balloons
         for(BalloonInfo& info: balloon_info_vec) {
-            // Draw outer circle
-            cv::circle(input_img, 
-                cv::Point2d(info.balloonLocation(0), info.balloonLocation(1)),
-                info.balloonRadius,
-                cv::Scalar(0, 0, 0),
-                5);
+            // // Draw outer circle
+            // cv::circle(input_img, 
+            //     cv::Point2d(info.balloonLocation(0), info.balloonLocation(1)),
+            //     info.balloonRadius,
+            //     cv::Scalar(0, 0, 0),
+            //     5);
 
-            // Draw inner circle
-            cv::circle(input_img, 
-                cv::Point2d(info.balloonLocation(0), info.balloonLocation(1)),
-                5,
-                cv::Scalar(0, 0, 0),
-                5);
+            // // Draw inner circle
+            // cv::circle(input_img, 
+            //     cv::Point2d(info.balloonLocation(0), info.balloonLocation(1)),
+            //     5,
+            //     cv::Scalar(0, 0, 0),
+            //     5);
+            // Estimate the position of the balloons
+            const RawMeasurement meas = measurement_map[image_name];
+            Observation obs{
+                balloon_info_vec, 
+                meas.rpG,
+                meas.RpG,
+                Eigen::Vector3d(meas.el, meas.az, meas.roll),
+                Eigen::Vector3d(
+                    std::pow(meas.el_sigma, 2), 
+                    std::pow(meas.az_sigma, 2), 
+                    std::pow(meas.roll_sigma, 2)).asDiagonal() 
+                };
+            database.push_back(obs);
+            std::cout<<"Observation made: "<<image_name<<std::endl;
         }
 
-        // Estimate the position of the balloons
-        const RawMeasurement meas = measurement_map[image_name];
-        Observation obs{
-            balloon_info_vec, 
-            meas.rpG,
-            meas.RpG,
-            Eigen::Vector3d(meas.el, meas.az, meas.roll),
-            Eigen::Vector3d(
-                std::pow(meas.el_sigma, 2), 
-                std::pow(meas.az_sigma, 2), 
-                std::pow(meas.roll_sigma, 2)).asDiagonal() 
-            };
-        database.push_back(obs);
+        
         std::cout << "Estimated Red Position: " << estimatePosition(database).at(red).transpose() << std::endl;
-
+        std::cout << "Estimated Blue Position: " << estimatePosition(database).at(blue).transpose() << std::endl;
         // Display image
-        cv::Mat displayImg = cv::Mat(960, 1280, 3);
-        cv::resize(input_img, displayImg, displayImg.size());
-        cv::imshow("Image", displayImg); 
-        cv::waitKey(0);  
+        // cv::Mat displayImg = cv::Mat(960, 1280, 3);
+        // cv::resize(input_img, displayImg, displayImg.size());
+        // cv::imshow("Image", displayImg); 
+        // cv::waitKey(0);  
     }
 
 
